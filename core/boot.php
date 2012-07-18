@@ -1,4 +1,7 @@
 <?php
+// setup tpl array to store variables
+include( APPROOT . 'core/tpl.php' );
+
 $tpl_suggestions =  array();
 $query_args = array();
 if (isset($_GET['q'])) {
@@ -16,7 +19,7 @@ if (isset($_GET['q'])) {
   }
 }
 $active_templates = array();
-// Scan templates files for each overridable template
+// Scan templates files for each overridable templates
 $overridables = array(
   'html',
   'head',
@@ -41,9 +44,24 @@ foreach ($overridables as $overridable) {
     $active_templates[$overridable] = APPROOT . 'core/basetemplates/' . $overridable . '.php';
   }
 }
+// Scan js directory for files
+$js_files_dir = scandir( APPROOT . 'app/js' );
+$js_files = array();
+foreach ( $js_files_dir as $js_files_dir_entry ) {
+  if (preg_match('/\.js$/', $js_files_dir_entry)) {
+    $js_files[] = $js_files_dir_entry;
+  }
+}
+// add js file
+foreach ( $js_files as $js_file ) {
+  foreach ($tpl_suggestions as $sugg) {
+    $js_sugg = $sugg . '.js';
+    if ($js_file === $js_sugg) {
+      $tpl['js'] .= '<script type="text/javascript" src="app/js/' . $js_sugg . '"></script>';
+    }
+  }
+}
 
-// provide tpl array
-include( APPROOT . 'core/tpl.php' );
 // Load active templates
 include( $active_templates['vars'] );
 include( $active_templates['html'] );
